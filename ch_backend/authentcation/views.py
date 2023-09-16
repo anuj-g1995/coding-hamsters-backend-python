@@ -29,8 +29,10 @@ class UserRegistrationView(generics.CreateAPIView):
             print(user)
             if user:
                 refresh = RefreshToken.for_user(user)
-                return Response({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={"success": True, "status_code": status.HTTP_201_CREATED, "data": {'refresh': str(refresh), 'access': str(refresh.access_token)},
+                              "message": "Data Found"}, status=status.HTTP_201_CREATED)
+        return Response(data={"success": False, "status_code": status.HTTP_400_BAD_REQUEST, "data": serializer.errors,
+                              "message": "Data Not Found"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginView(APIView):

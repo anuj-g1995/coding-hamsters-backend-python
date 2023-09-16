@@ -12,17 +12,21 @@ class JobList(APIView):
     """
     List all snippets, or create a new snippet.
     """
+
     def get(self, request):
         snippets = Job.objects.all()
         serializer = JobSerializer(snippets, many=True)
-        return Response(serializer.data)
+        return Response(data={"success": True, "status_code": status.HTTP_200_OK, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
         serializer = JobSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"success": True, "status_code": status.HTTP_201_CREATED, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_201_CREATED)
+        return Response(data={"success": False, "status_code": status.HTTP_400_BAD_REQUEST, "data": serializer.errors,
+                              "message": "Data Not Found"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobDetail(APIView):
@@ -36,7 +40,8 @@ class JobDetail(APIView):
     def get(self, request, pk):
         snippet = self.get_object(pk)
         serializer = JobSerializer(snippet)
-        return Response(serializer.data)
+        return Response(data={"success": True, "status_code": status.HTTP_200_OK, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_200_OK)
 
 
 class JobFilter(generics.ListAPIView):
@@ -58,8 +63,10 @@ class JobApplyCreateApiView(APIView):
         serializer = JobApplySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"success": True, "status_code": status.HTTP_201_CREATED, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_201_CREATED)
+        return Response(data={"success": False, "status_code": status.HTTP_400_BAD_REQUEST, "data": serializer.errors,
+                              "message": "Data Not Found"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobApplyDetailView(APIView):
@@ -76,13 +83,17 @@ class JobApplyDetailView(APIView):
         serializer = JobApplySerializer(snippet, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"success": True, "status_code": status.HTTP_200_OK, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_200_OK)
+        return Response(data={"success": False, "status_code": status.HTTP_400_BAD_REQUEST, "data": serializer.errors,
+                              "message": "Not Found"}, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
+    def delete(self, request, pk, status=None):
         snippet = self.get_object(pk)
         snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            data={"success": True, "status_code": status.HTTP_204_NO_CONTENT, "data": [], "message": "Record Found"},
+            status=status.HTTP_204_NO_CONTENT)
 
 
 class JobApplyFilterView(generics.ListAPIView):
