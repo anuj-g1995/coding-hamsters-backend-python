@@ -14,7 +14,8 @@ class CustomUser(AbstractBaseUser):
     last_name = models.CharField(max_length=30, blank=True)
     date_joined = models.DateTimeField(default=timezone.now)
     user_role = models.CharField(max_length=20,choices=UserType.choices, blank=True, null=True)
-    
+    phone_number = models.CharField(max_length=10, blank=True)
+    certificate = models.ImageField(upload_to='images/',null=True, blank=True)
     # Add your custom fields here
     USERNAME_FIELD = "email"
 

@@ -14,6 +14,7 @@ from django.db.models import Q
 
 from django.contrib.auth.hashers import make_password
 
+# class UserDe
 
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
@@ -26,7 +27,6 @@ class UserRegistrationView(generics.CreateAPIView):
         
         if serializer.is_valid():
             user = serializer.save()
-            print(user)
             if user:
                 refresh = RefreshToken.for_user(user)
                 return Response({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_201_CREATED)
@@ -39,10 +39,7 @@ class UserLoginView(APIView):
             data = request.data
             username = data.get('email')
             password = request.data.get('password')
-            # Check if the user exists
-            # print(CustomUser.objects.all())
-            user = CustomUser.objects.filter(Q(email=username)).first()
-            # print(user)
+            user = CustomUser.objects.filter( Q(email=username)).first()
 
             if not user:
                 return Response({
@@ -81,7 +78,6 @@ class UserLoginView(APIView):
 
 
         except Exception as e:
-            # Handle exceptions and return an appropriate response
             return Response({
                 "success": False,
                 "error": True,
