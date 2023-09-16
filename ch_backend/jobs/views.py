@@ -105,4 +105,7 @@ class JobApplyFilterView(generics.ListAPIView):
         the user as determined by the username portion of the URL.
         """
         filter_val = self.kwargs['filter_val']
-        return JobApplyModel.objects.filter(category=filter_val)
+        if filter_val == 'is_applied':
+            return JobApplyModel.objects.filter(is_applied=True)
+        elif filter_val == 'is_saved':
+            return JobApplyModel.objects.filter(is_saved=True)
