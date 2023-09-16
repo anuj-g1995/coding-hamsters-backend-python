@@ -32,6 +32,7 @@ class UserRegistrationView(generics.CreateAPIView):
                 return Response({'refresh': str(refresh), 'access': str(refresh.access_token)}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserLoginView(APIView):
     def post(self, request):
         try:
@@ -40,7 +41,7 @@ class UserLoginView(APIView):
             password = request.data.get('password')
             # Check if the user exists
             # print(CustomUser.objects.all())
-            user = CustomUser.objects.filter( Q(email=username)).first()
+            user = CustomUser.objects.filter(Q(email=username)).first()
             # print(user)
 
             if not user:

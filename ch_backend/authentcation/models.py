@@ -6,6 +6,7 @@ from .enums import UserType
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 
+
 # Create your models here.
 class CustomUser(AbstractBaseUser):
     email = models.EmailField(unique=True)
@@ -16,7 +17,9 @@ class CustomUser(AbstractBaseUser):
     
     # Add your custom fields here
     USERNAME_FIELD = "email"
-    
+
+
+
 # class Profile(models.Model):
 #     disablity_type = models.CharField(max_length=20,choices=UserType.choices, blank=True, null=True)
 #     # product = models.ForeignKey(User)
