@@ -14,7 +14,14 @@ from django.db.models import Q
 
 from django.contrib.auth.hashers import make_password
 
-# class UserDe
+class UserDetails(APIView):
+    def get(self, request):
+        user_id = request.GET.get("id")
+        users = CustomUser.objects.get(id = user_id)
+        serializer = UserRegistrationSerializer(users)
+        return  Response(data={"success": True, "status_code": status.HTTP_201_CREATED, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_201_CREATED)
+    
 
 class UserRegistrationView(generics.CreateAPIView):
     serializer_class = UserRegistrationSerializer
