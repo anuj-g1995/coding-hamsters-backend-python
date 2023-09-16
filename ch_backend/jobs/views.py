@@ -2,9 +2,9 @@ from django.http import Http404
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Job
-from .serializers import JobSerializer
-from rest_framework import status
+from .models import Job, JobApplyModel
+from .serializers import JobSerializer, JobApplySerializer
+from rest_framework import status, generics, permissions
 
 
 # Create your views here.
@@ -12,17 +12,21 @@ class JobList(APIView):
     """
     List all snippets, or create a new snippet.
     """
+
     def get(self, request):
         snippets = Job.objects.all()
         serializer = JobSerializer(snippets, many=True)
-        return Response(serializer.data)
+        return Response(data={"success": True, "status_code": status.HTTP_200_OK, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
         serializer = JobSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={"success": True, "status_code": status.HTTP_201_CREATED, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_201_CREATED)
+        return Response(data={"success": False, "status_code": status.HTTP_400_BAD_REQUEST, "data": serializer.errors,
+                              "message": "Data Not Found"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class JobDetail(APIView):
@@ -36,105 +40,69 @@ class JobDetail(APIView):
     def get(self, request, pk):
         snippet = self.get_object(pk)
         serializer = JobSerializer(snippet)
-        return Response(serializer.data)
+        return Response(data={"success": True, "status_code": status.HTTP_200_OK, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_200_OK)
 
 
-# class GetOrdersListView(generics.ListAPIView):
-#     permission_classes = [IsAuthenticatedOrReadOnly]
-#
-#     queryset = OrderModel.objects.filter().order_by('id')
-#
-#     serializer_class = OrderModelSerializer
-#
-#     # filter_backends = []
-#
-#     filter_backends = [CustomOrderFilterBackend]
-#
-#     # filterset_class = CustomOrderFilterBackend
-#
-#     filterset_fields = ['user_role']
-#
-#     # ordering_fields = ['first_name']
-#
-#     # ordering = ['first_name']
-#
-#     def list(self, request, *args, **kwargs):
-#
-#         try:
-#
-#             queryset = self.filter_queryset(self.get_queryset())
-#
-#             limit = request.GET.get('items_per_page', 10)
-#
-#             page_number = request.GET.get('page', 1)
-#
-#             totalpages, object_list, page = paginatedResults(queryset, int(limit), int(page_number))
-#
-#             # print(object_list)
-#
-#             serializer = self.get_serializer(object_list, many=True)
-#
-#             # print(totalpages)
-#
-#             if serializer.data:
-#                 # print(serializer.data)
-#
-#                 return Response({
-#
-#                     "success": True,
-#
-#                     "error": False,
-#
-#                     "message": "Orders List!!",
-#
-#                     "data": {
-#
-#                         "total_pages": totalpages,
-#
-#                         "current_page": page.number,
-#
-#                         #
-#
-#                         "data": serializer.data
-#
-#                     },
-#
-#                 }, status=status.HTTP_200_OK)
-#
-#             return Response({
-#
-#                 "success": True,
-#
-#                 "message": "Orders Not found!",
-#
-#                 "data": {
-#
-#                     "total_pages": totalpages,
-#
-#                     "current_page": page.number,
-#
-#                     #
-#
-#                     "data": serializer.data
-#
-#                 },
-#
-#                 # "error": serializer.errors ,
-#
-#             }, status=status.HTTP_200_OK)
-#
-#
-#
-#
-#
-#         except Exception as e:
-#
-#             return Response({
-#
-#                 "success": False,
-#
-#                 "error": True,
-#
-#                 "message": f"Internal Server Error: {str(e)}",
-#
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class JobFilter(generics.ListAPIView):
+    serializer_class = JobSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases for
+        the user as determined by the username portion of the URL.
+        """
+        filter_val = self.kwargs['filter_val']
+        return Job.objects.filter(category=filter_val)
+
+
+class JobApplyCreateApiView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        serializer = JobApplySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={"success": True, "status_code": status.HTTP_201_CREATED, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_201_CREATED)
+        return Response(data={"success": False, "status_code": status.HTTP_400_BAD_REQUEST, "data": serializer.errors,
+                              "message": "Data Not Found"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class JobApplyDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return JobApplyModel.objects.get(pk=pk)
+        except JobApplyModel.DoesNotExist:
+            raise Http404
+
+    def put(self, request, pk):
+        snippet = self.get_object(pk)
+        serializer = JobApplySerializer(snippet, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={"success": True, "status_code": status.HTTP_200_OK, "data": serializer.data,
+                              "message": "Data Found"}, status=status.HTTP_200_OK)
+        return Response(data={"success": False, "status_code": status.HTTP_400_BAD_REQUEST, "data": serializer.errors,
+                              "message": "Not Found"}, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, status=None):
+        snippet = self.get_object(pk)
+        snippet.delete()
+        return Response(
+            data={"success": True, "status_code": status.HTTP_204_NO_CONTENT, "data": [], "message": "Record Found"},
+            status=status.HTTP_204_NO_CONTENT)
+
+
+class JobApplyFilterView(generics.ListAPIView):
+    serializer_class = JobSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases for
+        the user as determined by the username portion of the URL.
+        """
+        filter_val = self.kwargs['filter_val']
+        return JobApplyModel.objects.filter(category=filter_val)

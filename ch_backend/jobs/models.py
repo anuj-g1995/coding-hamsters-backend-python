@@ -19,6 +19,15 @@ class JobStatus(models.TextChoices):
     EXPIRED = "expired"
 
 
+class JobCategory(models.TextChoices):
+    BLINDNESS = 'Blidness'
+    PARTIAL = 'Partial blindness'
+    HEARING = 'Hearing'
+    IMPAIREMENT = 'Impairement'
+    HANDICAP = 'Handicap'
+    PERSON_WITH_DISABILITY = 'Person_with_Disability'
+
+
 class ExperianceLevel(models.TextChoices):
     ONE = "0-1 years"
     ONE_TWO = "1-2 years"
@@ -51,6 +60,7 @@ class Job(TimeStampedModel):
     expiry_date = models.DateField(default=None,blank=True,null=True)
     experience = models.CharField(choices=ExperianceLevel.choices, default='0-1 years',max_length=50)
     description = models.TextField(null=True, blank=True)
+    category = models.CharField(choices=JobCategory.choices, max_length=50, null=True)
 
     class Meta:
         db_table = 'Job'
